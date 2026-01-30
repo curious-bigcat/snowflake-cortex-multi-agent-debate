@@ -81,45 +81,6 @@ This system implements a **multi-agent debate pattern** for financial analysis w
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
-### Debate Flow
-
-```
-START
-  │
-  ▼
-┌─────────────┐
-│  Researcher │ ─── Gathers financial data via Cortex Analyst & Search
-└─────────────┘
-  │
-  ▼
-┌─────────────┐
-│ Bull Agent  │ ─── Makes bullish case using research data
-└─────────────┘
-  │
-  ▼
-┌─────────────┐
-│ Moderator   │ ─── Fact-checks bull's claims
-└─────────────┘
-  │
-  ▼
-┌─────────────┐
-│ Bear Agent  │ ─── Makes bearish case, counters bull
-└─────────────┘
-  │
-  ▼
-┌─────────────┐
-│ Moderator   │ ─── Fact-checks bear's claims
-└─────────────┘
-  │
-  ▼ (Repeat for N rounds)
-  │
-┌─────────────┐
-│   Judge     │ ─── Weighs arguments, delivers verdict
-└─────────────┘
-  │
-  ▼
- END (BUY / HOLD / SELL recommendation)
-```
 
 ---
 
