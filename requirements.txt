@@ -1,0 +1,23 @@
+# Multi-Agent Debate System Dependencies
+
+# LangGraph for orchestration
+langgraph>=0.2.0
+langchain>=0.3.0
+langchain-core>=0.3.0
+
+# Snowflake connectivity
+snowflake-connector-python>=3.6.0
+
+# Data handling
+pydantic>=2.0.0
+pandas>=2.0.0
+
+# CLI and formatting
+rich>=13.0.0
+typer>=0.12.0
+
+# Environment management
+python-dotenv>=1.0.0
+
+# Optional: Streamlit UI
+streamlit>=1.35.0

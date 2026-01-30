@@ -1,0 +1,530 @@
+# ============================================================================
+# Financial Research Semantic Model
+# ============================================================================
+# Cortex Analyst semantic model for the Multi-Agent Debate System.
+# Defines tables, relationships, and business logic for natural language queries.
+# ============================================================================
+
+name: financial_research
+description: |
+  Semantic model for financial research data used by the Multi-Agent Debate System.
+  Enables natural language queries about stock metrics, earnings, technicals, and sentiment.
+
+# Database context
+database: FINANCIAL_RESEARCH
+schema: EQUITY_RESEARCH
+
+# =============================================================================
+# Tables
+# =============================================================================
+tables:
+
+  # ---------------------------------------------------------------------------
+  # Investment Metrics
+  # ---------------------------------------------------------------------------
+  - name: investment_metrics
+    description: |
+      Key investment and valuation metrics for stocks including P/E ratios,
+      profitability metrics, financial health indicators, and growth rates.
+    base_table:
+      database: FINANCIAL_RESEARCH
+      schema: EQUITY_RESEARCH
+      table: INVESTMENT_METRICS
+    
+    dimensions:
+      - name: ticker
+        description: Stock ticker symbol (e.g., AAPL, NVDA, MSFT)
+        expr: TICKER
+        data_type: VARCHAR
+        unique: false
+        sample_values: ["AAPL", "NVDA", "MSFT", "GOOGL", "AMZN"]
+      
+      - name: company_name
+        description: Full company name
+        expr: COMPANY_NAME
+        data_type: VARCHAR
+      
+      - name: metric_date
+        description: Date of the metrics snapshot
+        expr: METRIC_DATE
+        data_type: DATE
+
+    time_dimensions:
+      - name: metric_date_time
+        description: Time dimension for metrics analysis
+        expr: METRIC_DATE
+        data_type: DATE
+
+    measures:
+      - name: pe_ratio
+        description: Price-to-Earnings ratio (stock price / EPS)
+        expr: PE_RATIO
+        data_type: FLOAT
+        default_aggregation: avg
+      
+      - name: forward_pe
+        description: Forward P/E ratio based on estimated future earnings
+        expr: FORWARD_PE
+        data_type: FLOAT
+        default_aggregation: avg
+      
+      - name: peg_ratio
+        description: PEG ratio (P/E ratio / earnings growth rate)
+        expr: PEG_RATIO
+        data_type: FLOAT
+        default_aggregation: avg
+      
+      - name: price_to_book
+        description: Price-to-Book ratio
+        expr: PRICE_TO_BOOK
+        data_type: FLOAT
+        default_aggregation: avg
+      
+      - name: roe_pct
+        description: Return on Equity percentage
+        expr: ROE_PCT
+        data_type: FLOAT
+        default_aggregation: avg
+      
+      - name: roa_pct
+        description: Return on Assets percentage
+        expr: ROA_PCT
+        data_type: FLOAT
+        default_aggregation: avg
+      
+      - name: debt_to_equity
+        description: Debt-to-Equity ratio
+        expr: DEBT_TO_EQUITY
+        data_type: FLOAT
+        default_aggregation: avg
+      
+      - name: dividend_yield_pct
+        description: Dividend yield percentage
+        expr: DIVIDEND_YIELD_PCT
+        data_type: FLOAT
+        default_aggregation: avg
+      
+      - name: market_cap_billions
+        description: Market capitalization in billions USD
+        expr: MARKET_CAP_BILLIONS
+        data_type: FLOAT
+        default_aggregation: sum
+      
+      - name: revenue_growth_yoy_pct
+        description: Year-over-year revenue growth percentage
+        expr: REVENUE_GROWTH_YOY_PCT
+        data_type: FLOAT
+        default_aggregation: avg
+
+  # ---------------------------------------------------------------------------
+  # Earnings History
+  # ---------------------------------------------------------------------------
+  - name: earnings_history
+    description: |
+      Historical earnings data including EPS actuals vs estimates,
+      revenue surprises, and beat/miss classifications.
+    base_table:
+      database: FINANCIAL_RESEARCH
+      schema: EQUITY_RESEARCH
+      table: EARNINGS_HISTORY
+    
+    dimensions:
+      - name: ticker
+        description: Stock ticker symbol
+        expr: TICKER
+        data_type: VARCHAR
+      
+      - name: company_name
+        description: Full company name
+        expr: COMPANY_NAME
+        data_type: VARCHAR
+      
+      - name: fiscal_quarter
+        description: Fiscal quarter (Q1, Q2, Q3, Q4)
+        expr: FISCAL_QUARTER
+        data_type: VARCHAR
+        sample_values: ["Q1", "Q2", "Q3", "Q4"]
+      
+      - name: fiscal_year
+        description: Fiscal year
+        expr: FISCAL_YEAR
+        data_type: INT
+      
+      - name: beat_miss
+        description: Whether earnings beat, missed, or met estimates
+        expr: BEAT_MISS
+        data_type: VARCHAR
+        sample_values: ["BEAT", "MISS", "MEET"]
+
+    time_dimensions:
+      - name: report_date
+        description: Date earnings were reported
+        expr: REPORT_DATE
+        data_type: DATE
+
+    measures:
+      - name: eps_actual
+        description: Actual earnings per share reported
+        expr: EPS_ACTUAL
+        data_type: FLOAT
+        default_aggregation: avg
+      
+      - name: eps_estimate
+        description: Consensus EPS estimate
+        expr: EPS_ESTIMATE
+        data_type: FLOAT
+        default_aggregation: avg
+      
+      - name: eps_surprise_pct
+        description: EPS surprise percentage ((actual - estimate) / estimate * 100)
+        expr: EPS_SURPRISE_PCT
+        data_type: FLOAT
+        default_aggregation: avg
+      
+      - name: revenue_actual_millions
+        description: Actual revenue in millions USD
+        expr: REVENUE_ACTUAL_MILLIONS
+        data_type: FLOAT
+        default_aggregation: sum
+      
+      - name: revenue_surprise_pct
+        description: Revenue surprise percentage
+        expr: REVENUE_SURPRISE_PCT
+        data_type: FLOAT
+        default_aggregation: avg
+
+  # ---------------------------------------------------------------------------
+  # Technical Indicators
+  # ---------------------------------------------------------------------------
+  - name: technical_indicators
+    description: |
+      Technical analysis indicators including moving averages, RSI, MACD,
+      Bollinger Bands, and volume metrics.
+    base_table:
+      database: FINANCIAL_RESEARCH
+      schema: EQUITY_RESEARCH
+      table: TECHNICAL_INDICATORS
+    
+    dimensions:
+      - name: ticker
+        description: Stock ticker symbol
+        expr: TICKER
+        data_type: VARCHAR
+      
+      - name: rsi_signal
+        description: RSI signal classification (OVERSOLD, NEUTRAL, OVERBOUGHT)
+        expr: RSI_SIGNAL
+        data_type: VARCHAR
+        sample_values: ["OVERSOLD", "NEUTRAL", "OVERBOUGHT"]
+      
+      - name: trend_strength
+        description: Trend strength classification
+        expr: TREND_STRENGTH
+        data_type: VARCHAR
+        sample_values: ["WEAK", "MODERATE", "STRONG"]
+
+    time_dimensions:
+      - name: indicator_date
+        description: Date of technical indicators
+        expr: INDICATOR_DATE
+        data_type: DATE
+
+    measures:
+      - name: close_price
+        description: Closing stock price
+        expr: CLOSE_PRICE
+        data_type: FLOAT
+        default_aggregation: avg
+      
+      - name: volume
+        description: Trading volume
+        expr: VOLUME
+        data_type: BIGINT
+        default_aggregation: sum
+      
+      - name: sma_20
+        description: 20-day Simple Moving Average
+        expr: SMA_20
+        data_type: FLOAT
+        default_aggregation: avg
+      
+      - name: sma_50
+        description: 50-day Simple Moving Average
+        expr: SMA_50
+        data_type: FLOAT
+        default_aggregation: avg
+      
+      - name: sma_200
+        description: 200-day Simple Moving Average
+        expr: SMA_200
+        data_type: FLOAT
+        default_aggregation: avg
+      
+      - name: rsi_14
+        description: 14-day Relative Strength Index (0-100)
+        expr: RSI_14
+        data_type: FLOAT
+        default_aggregation: avg
+      
+      - name: macd
+        description: MACD indicator value
+        expr: MACD
+        data_type: FLOAT
+        default_aggregation: avg
+      
+      - name: macd_signal
+        description: MACD signal line
+        expr: MACD_SIGNAL
+        data_type: FLOAT
+        default_aggregation: avg
+
+  # ---------------------------------------------------------------------------
+  # Market Sentiment
+  # ---------------------------------------------------------------------------
+  - name: market_sentiment
+    description: |
+      Market sentiment data from news and social media analysis,
+      including sentiment scores and analyst ratings.
+    base_table:
+      database: FINANCIAL_RESEARCH
+      schema: EQUITY_RESEARCH
+      table: MARKET_SENTIMENT
+    
+    dimensions:
+      - name: ticker
+        description: Stock ticker symbol
+        expr: TICKER
+        data_type: VARCHAR
+      
+      - name: company_name
+        description: Full company name
+        expr: COMPANY_NAME
+        data_type: VARCHAR
+      
+      - name: overall_sentiment
+        description: Overall sentiment classification
+        expr: OVERALL_SENTIMENT
+        data_type: VARCHAR
+        sample_values: ["VERY_BEARISH", "BEARISH", "NEUTRAL", "BULLISH", "VERY_BULLISH"]
+
+    time_dimensions:
+      - name: sentiment_date
+        description: Date of sentiment analysis
+        expr: SENTIMENT_DATE
+        data_type: DATE
+
+    measures:
+      - name: news_sentiment_score
+        description: News sentiment score (-1 to 1)
+        expr: NEWS_SENTIMENT_SCORE
+        data_type: FLOAT
+        default_aggregation: avg
+      
+      - name: social_media_sentiment_score
+        description: Social media sentiment score (-1 to 1)
+        expr: SOCIAL_MEDIA_SENTIMENT_SCORE
+        data_type: FLOAT
+        default_aggregation: avg
+      
+      - name: bullish_pct
+        description: Percentage of bullish sentiment
+        expr: BULLISH_PCT
+        data_type: FLOAT
+        default_aggregation: avg
+      
+      - name: bearish_pct
+        description: Percentage of bearish sentiment
+        expr: BEARISH_PCT
+        data_type: FLOAT
+        default_aggregation: avg
+      
+      - name: analyst_rating_avg
+        description: Average analyst rating (1-5 scale)
+        expr: ANALYST_RATING_AVG
+        data_type: FLOAT
+        default_aggregation: avg
+      
+      - name: price_target_avg
+        description: Average analyst price target
+        expr: PRICE_TARGET_AVG
+        data_type: FLOAT
+        default_aggregation: avg
+
+  # ---------------------------------------------------------------------------
+  # Insider Transactions
+  # ---------------------------------------------------------------------------
+  - name: insider_transactions
+    description: |
+      Insider trading activity including buys, sells, and exercises
+      by company executives and directors.
+    base_table:
+      database: FINANCIAL_RESEARCH
+      schema: EQUITY_RESEARCH
+      table: INSIDER_TRANSACTIONS
+    
+    dimensions:
+      - name: ticker
+        description: Stock ticker symbol
+        expr: TICKER
+        data_type: VARCHAR
+      
+      - name: company_name
+        description: Full company name
+        expr: COMPANY_NAME
+        data_type: VARCHAR
+      
+      - name: insider_name
+        description: Name of the insider
+        expr: INSIDER_NAME
+        data_type: VARCHAR
+      
+      - name: insider_title
+        description: Title/position of the insider
+        expr: INSIDER_TITLE
+        data_type: VARCHAR
+      
+      - name: transaction_type
+        description: Type of transaction (BUY, SELL, EXERCISE, GIFT)
+        expr: TRANSACTION_TYPE
+        data_type: VARCHAR
+        sample_values: ["BUY", "SELL", "EXERCISE", "GIFT"]
+
+    time_dimensions:
+      - name: transaction_date
+        description: Date of the transaction
+        expr: TRANSACTION_DATE
+        data_type: DATE
+
+    measures:
+      - name: shares_traded
+        description: Number of shares traded
+        expr: SHARES_TRADED
+        data_type: BIGINT
+        default_aggregation: sum
+      
+      - name: total_value
+        description: Total value of the transaction in USD
+        expr: TOTAL_VALUE
+        data_type: FLOAT
+        default_aggregation: sum
+      
+      - name: price_per_share
+        description: Price per share in the transaction
+        expr: PRICE_PER_SHARE
+        data_type: FLOAT
+        default_aggregation: avg
+
+  # ---------------------------------------------------------------------------
+  # Institutional Holdings
+  # ---------------------------------------------------------------------------
+  - name: institutional_holdings
+    description: |
+      Institutional ownership data from 13F filings showing hedge fund,
+      mutual fund, and pension fund positions.
+    base_table:
+      database: FINANCIAL_RESEARCH
+      schema: EQUITY_RESEARCH
+      table: INSTITUTIONAL_HOLDINGS
+    
+    dimensions:
+      - name: ticker
+        description: Stock ticker symbol
+        expr: TICKER
+        data_type: VARCHAR
+      
+      - name: company_name
+        description: Full company name
+        expr: COMPANY_NAME
+        data_type: VARCHAR
+      
+      - name: institution_name
+        description: Name of the institutional investor
+        expr: INSTITUTION_NAME
+        data_type: VARCHAR
+      
+      - name: institution_type
+        description: Type of institution
+        expr: INSTITUTION_TYPE
+        data_type: VARCHAR
+        sample_values: ["Hedge Fund", "Mutual Fund", "Pension Fund", "Insurance Company"]
+      
+      - name: change_type
+        description: Type of position change
+        expr: CHANGE_TYPE
+        data_type: VARCHAR
+        sample_values: ["NEW", "INCREASED", "DECREASED", "SOLD_OUT", "NO_CHANGE"]
+
+    time_dimensions:
+      - name: report_date
+        description: Quarter end date for the filing
+        expr: REPORT_DATE
+        data_type: DATE
+
+    measures:
+      - name: shares_held
+        description: Number of shares held
+        expr: SHARES_HELD
+        data_type: BIGINT
+        default_aggregation: sum
+      
+      - name: value_usd_millions
+        description: Value of holdings in millions USD
+        expr: VALUE_USD_MILLIONS
+        data_type: FLOAT
+        default_aggregation: sum
+      
+      - name: percent_of_shares_outstanding
+        description: Percentage of total shares outstanding
+        expr: PERCENT_OF_SHARES_OUTSTANDING
+        data_type: FLOAT
+        default_aggregation: sum
+
+# =============================================================================
+# Verified Queries (Examples for Cortex Analyst)
+# =============================================================================
+verified_queries:
+  - name: top_stocks_by_pe
+    question: What are the top 5 stocks by P/E ratio?
+    sql: |
+      SELECT TICKER, COMPANY_NAME, PE_RATIO, MARKET_CAP_BILLIONS
+      FROM INVESTMENT_METRICS
+      WHERE PE_RATIO IS NOT NULL
+      ORDER BY PE_RATIO DESC
+      LIMIT 5
+  
+  - name: recent_earnings_beats
+    question: Which stocks beat earnings estimates in the last quarter?
+    sql: |
+      SELECT TICKER, COMPANY_NAME, FISCAL_QUARTER, FISCAL_YEAR, 
+             EPS_ACTUAL, EPS_ESTIMATE, EPS_SURPRISE_PCT
+      FROM EARNINGS_HISTORY
+      WHERE BEAT_MISS = 'BEAT'
+      AND REPORT_DATE >= DATEADD(month, -3, CURRENT_DATE())
+      ORDER BY EPS_SURPRISE_PCT DESC
+  
+  - name: oversold_stocks
+    question: Which stocks are currently oversold based on RSI?
+    sql: |
+      SELECT TICKER, CLOSE_PRICE, RSI_14, RSI_SIGNAL
+      FROM TECHNICAL_INDICATORS
+      WHERE RSI_SIGNAL = 'OVERSOLD'
+      AND INDICATOR_DATE = (SELECT MAX(INDICATOR_DATE) FROM TECHNICAL_INDICATORS)
+  
+  - name: bullish_sentiment
+    question: Which stocks have the most bullish sentiment?
+    sql: |
+      SELECT TICKER, COMPANY_NAME, OVERALL_SENTIMENT, BULLISH_PCT, NEWS_SENTIMENT_SCORE
+      FROM MARKET_SENTIMENT
+      WHERE SENTIMENT_DATE = (SELECT MAX(SENTIMENT_DATE) FROM MARKET_SENTIMENT)
+      ORDER BY BULLISH_PCT DESC
+      LIMIT 10
+  
+  - name: insider_buying
+    question: What insider buying activity has occurred recently?
+    sql: |
+      SELECT TICKER, INSIDER_NAME, INSIDER_TITLE, SHARES_TRADED, TOTAL_VALUE, TRANSACTION_DATE
+      FROM INSIDER_TRANSACTIONS
+      WHERE TRANSACTION_TYPE = 'BUY'
+      AND TRANSACTION_DATE >= DATEADD(day, -30, CURRENT_DATE())
+      ORDER BY TOTAL_VALUE DESC
+      LIMIT 10
